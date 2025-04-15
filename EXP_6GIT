@@ -1,0 +1,282 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class Pharmacy:
+    def __init__(self):
+        # Dictionary of available medicines with price per unit
+        self.medicines = {
+            "Paracetamol": 5.00,
+            "Ibuprofen": 8.00,
+            "Aspirin": 10.00,
+            "Cough Syrup": 12.00,
+            "Amoxicillin": 15.00,
+            "Dolo":30.00,
+            "Glucose":100,
+            "Medomol":20,
+       
+        }
+        self.cart = {}
+
+    def add_to_cart(self, medicine_name, quantity):
+        """Add a medicine to the cart."""
+        if medicine_name in self.medicines:
+            if medicine_name in self.cart:
+                self.cart[medicine_name] += quantity
+            else:
+                self.cart[medicine_name] = quantity
+        else:
+            return False
+        return True
+   
+    def calculate_total(self):
+        """Calculate the total price of the items in the cart."""
+        total = 0
+        for medicine, quantity in self.cart.items():
+            total += self.medicines[medicine] * quantity
+        return total
+   
+    def apply_discount(self, total, discount_percentage):
+        """Apply discount to the total."""
+        return total * (1 - discount_percentage / 100)
+   
+    def apply_tax(self, total, tax_percentage):
+        """Apply tax to the total."""
+        return total * (1 + tax_percentage / 100)
+
+    def generate_bill(self):
+        """Generate the final bill including itemized list, tax, and discount."""
+        if not self.cart:
+            return "No items in cart."
+
+        bill = "\n--- BILL ---\n"
+        total_before_discount = 0
+
+        # Display each item and calculate total before discount
+        for medicine, quantity in self.cart.items():
+            price = self.medicines[medicine]
+            bill += f"{medicine} x{quantity}: ${price * quantity:.2f}\n"
+            total_before_discount += price * quantity
+       
+        # Apply discount if any
+        discount_percentage = 10  # Example: 10% discount
+        total_after_discount = self.apply_discount(total_before_discount, discount_percentage)
+       
+        # Apply tax
+        tax_percentage = 8  # Example: 8% tax
+        total_after_tax = self.apply_tax(total_after_discount, tax_percentage)
+
+        bill += f"\nTotal Before Discount: ${total_before_discount:.2f}\n"
+        bill += f"Discount ({discount_percentage}%): -${total_before_discount - total_after_discount:.2f}\n"
+        bill += f"Total After Discount: ${total_after_discount:.2f}\n"
+        bill += f"Tax ({tax_percentage}%): +${total_after_discount * tax_percentage / 100:.2f}\n"
+        bill += f"Total After Tax: ${total_after_tax:.2f}\n"
+        bill += "\nThank you for your purchase!\n"
+        return bill
+
+# GUI for Pharmacy Billing System using Tkinter
+class PharmacyGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Pharmacy Billing System")
+       
+        self.pharmacy = Pharmacy()
+       
+        self.medicine_label = tk.Label(root, text="Select Medicine:")
+        self.medicine_label.grid(row=0, column=0, padx=10, pady=10)
+       
+        self.medicine_var = tk.StringVar()
+        self.medicine_menu = tk.OptionMenu(root, self.medicine_var, *self.pharmacy.medicines.keys())
+        self.medicine_menu.grid(row=0, column=1, padx=10, pady=10)
+       
+        self.quantity_label = tk.Label(root, text="Quantity:")
+        self.quantity_label.grid(row=1, column=0, padx=10, pady=10)
+       
+        self.quantity_entry = tk.Entry(root)
+        self.quantity_entry.grid(row=1, column=1, padx=10, pady=10)
+       
+        self.add_button = tk.Button(root, text="Add to Cart", command=self.add_to_cart)
+        self.add_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+       
+        self.cart_label = tk.Label(root, text="Cart:")
+        self.cart_label.grid(row=3, column=0, padx=10, pady=10)
+       
+        self.cart_text = tk.Text(root, height=10, width=30)
+        self.cart_text.grid(row=3, column=1, padx=10, pady=10)
+       
+        self.bill_button = tk.Button(root, text="Generate Bill", command=self.generate_bill)
+        self.bill_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
+       
+    def add_to_cart(self):
+        """Add selected medicine and quantity to cart."""
+        medicine_name = self.medicine_var.get()
+        try:
+            quantity = int(self.quantity_entry.get())
+            if quantity <= 0:
+                raise ValueError("Quantity must be a positive integer.")
+        except ValueError:
+            messagebox.showerror("Invalid input", "Please enter a valid quantity.")
+            return
+       
+        if self.pharmacy.add_to_cart(medicine_name, quantity):
+            self.update_cart_display()
+        else:
+            messagebox.showerror("Invalid Medicine", "Selected medicine is not available.")
+       
+    def update_cart_display(self):
+        """Update the cart display in the GUI."""
+        self.cart_text.delete(1.0, tk.END)
+        for medicine, quantity in self.pharmacy.cart.items():
+            price = self.pharmacy.medicines[medicine]
+            self.cart_text.insert(tk.END, f"{medicine} x{quantity}: ${price * quantity:.2f}\n")
+   
+    def generate_bill(self):
+        """Generate and display the bill."""
+        bill = self.pharmacy.generate_bill()
+        messagebox.showinfo("Bill", bill)
+
+# Main function to run the Tkinter GUI
+def main():
+    root = tk.Tk()
+    app = PharmacyGUI(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+
+
+import tkinter as tk
+from tkinter import messagebox
+
+class Pharmacy:
+    def __init__(self):
+        self.medicines = {
+            "Paracetamol": 5.00,
+            "Ibuprofen": 8.00,
+            "Aspirin": 10.00,
+            "Cough Syrup": 12.00,
+            "Amoxicillin": 15.00,
+            "Dolo":30.00,
+            "Glucose":100,
+            "Medomol":20,
+       
+        }
+        self.cart = {}
+
+    def add_to_cart(self, medicine_name, quantity):
+        if medicine_name in self.medicines:
+            if medicine_name in self.cart:
+                self.cart[medicine_name] += quantity
+            else:
+                self.cart[medicine_name] = quantity
+        else:
+            return False
+        return True
+   
+    def calculate_total(self):
+        total = 0
+        for medicine, quantity in self.cart.items():
+            total += self.medicines[medicine] * quantity
+        return total
+   
+    def apply_discount(self, total, discount_percentage):
+        return total * (1 - discount_percentage / 100)
+   
+    def apply_tax(self, total, tax_percentage):
+        return total * (1 + tax_percentage / 100)
+
+    def generate_bill(self):
+        if not self.cart:
+            return
+
+        bill = "\n--- BILL ---\n"
+        total_before_discount = 0
+
+        # Display each item and calculate total before discount
+        for medicine, quantity in self.cart.items():
+            price = self.medicines[medicine]
+            bill += f"{medicine} x{quantity}: ${price * quantity:.2f}\n"
+            total_before_discount += price * quantity
+       
+        # Apply discount if any
+        discount_percentage = 10  # Example: 10% discount
+        total_after_discount = self.apply_discount(total_before_discount, discount_percentage)
+       
+        # Apply tax
+        tax_percentage = 8  # Example: 8% tax
+        total_after_tax = self.apply_tax(total_after_discount, tax_percentage)
+
+        bill += f"\nTotal Before Discount: ${total_before_discount:.2f}\n"
+        bill += f"Discount ({discount_percentage}%): -${total_before_discount - total_after_discount:.2f}\n"
+        bill += f"Total After Discount: ${total_after_discount:.2f}\n"
+        bill += f"Tax ({tax_percentage}%): +${total_after_discount * tax_percentage / 100:.2f}\n"
+        bill += f"Total After Tax: ${total_after_tax:.2f}\n"
+        bill += "\nThank you for your purchase!\n"
+        return bill
+
+# GUI for Pharmacy Billing System using Tkinter
+class PharmacyGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Pharmacy Billing System")
+       
+        self.pharmacy = Pharmacy()
+       
+        self.medicine_label = tk.Label(root, text="Select Medicine:")
+        self.medicine_label.grid(row=0, column=0, padx=10, pady=10)
+       
+        self.medicine_var = tk.StringVar()
+        self.medicine_menu = tk.OptionMenu(root, self.medicine_var, *self.pharmacy.medicines.keys())
+        self.medicine_menu.grid(row=0, column=1, padx=10, pady=10)
+       
+        self.quantity_label = tk.Label(root, text="Quantity:")
+        self.quantity_label.grid(row=1, column=0, padx=10, pady=10)
+       
+        self.quantity_entry = tk.Entry(root)
+        self.quantity_entry.grid(row=1, column=1, padx=10, pady=10)
+       
+        self.add_button = tk.Button(root, text="Add to Cart", command=self.add_to_cart)
+        self.add_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+       
+        self.cart_label = tk.Label(root, text="Cart:")
+        self.cart_label.grid(row=3, column=0, padx=10, pady=10)
+       
+        self.cart_text = tk.Text(root, height=10, width=30)
+        self.cart_text.grid(row=3, column=1, padx=10, pady=10)
+       
+        self.bill_button = tk.Button(root, text="Generate Bill", command=self.generate_bill)
+        self.bill_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
+       
+    def add_to_cart(self):
+        medicine_name = self.medicine_var.get()
+        try:
+            quantity = int(self.quantity_entry.get())
+            if quantity <= 0:
+                raise ValueError("Quantity must be a positive integer.")
+        except ValueError:
+            messagebox.showerror("Invalid input", "Please enter a valid quantity.")
+            return
+       
+        if self.pharmacy.add_to_cart(medicine_name, quantity):
+            self.update_cart_display()
+        else:
+            messagebox.showerror("Invalid Medicine", "Selected medicine is not available.")
+       
+    def update_cart_display(self):
+        """Update the cart display in the GUI."""
+        self.cart_text.delete(1.0, tk.END)
+        for medicine, quantity in self.pharmacy.cart.items():
+            price = self.pharmacy.medicines[medicine]
+            self.cart_text.insert(tk.END, f"{medicine} x{quantity}: ${price * quantity:.2f}\n")
+   
+    def generate_bill(self):
+        bill = self.pharmacy.generate_bill()
+        messagebox.showinfo("Bill", bill)
+
+# Main function to run the Tkinter GUI
+def main():
+    root = tk.Tk()
+    app = PharmacyGUI(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
